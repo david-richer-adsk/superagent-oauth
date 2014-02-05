@@ -72,15 +72,15 @@ module.exports = function (superagent) {
     var extra_params = this._oauth_query;
 
     if ('application/x-www-form-urlencoded' == type && isObject(this._data)) {
-      if(!extra_params) {
-          extra_params = this._data;
-      } else {
+      if(extra_params) {
         // merge
         var keys = Object.keys(this._data), key;
         for (var i = 0; i < keys.length; i++) {
           key = keys[i];
           extra_params[key] = this._data[key];
         }
+      } else {
+        extra_params = this._data;
       }
     }
 
