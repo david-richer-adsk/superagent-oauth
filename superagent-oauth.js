@@ -1,4 +1,16 @@
 
+/**
+ * Check if `obj` is an object.
+ *
+ * @param {Object} obj
+ * @return {Boolean}
+ * @api private
+ */
+
+function isObject(obj) {
+  return null != obj && 'object' == typeof obj;
+}
+
 module.exports = function (superagent) {
 
   /**
@@ -54,12 +66,30 @@ module.exports = function (superagent) {
    */
 
   Request.prototype.signOAuth = function () {
+
+    var req = this.request();
+    var type = req.getHeader('Content-Type');
+    var extra_params = this._oauth_query;
+
+    if ('application/x-www-form-urlencoded' == type && isObject(this._data)) {
+      if(!extra_params) {
+          extra_params = this._data;
+      } else {
+        // merge
+        var keys = Object.keys(this._data), key;
+        for (var i = 0; i < keys.length; i++) {
+          key = keys[i];
+          extra_params[key] = this._data[key];
+        }
+      }
+    }
+
     var params = this.oa._prepareParameters(
         this.token
       , this.secret
       , this.method
       , this.url
-      , this._data || this._oauth_query // XXX: what if there's query and body? merge?
+      , extra_params
     );
 
     var header = this.oa._isEcho
